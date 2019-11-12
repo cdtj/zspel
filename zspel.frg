@@ -19,22 +19,21 @@
 
 #define ILIMIT 2147483648
 
-/*
- * Function: z_checkin
- * -------------------
- * checking in previously checked out group leader
- *
- * gl: group leader
- * delay: delay between iterations if object is busy
- * timeout: max iterations before terminating attempts
- *
- * optional args:
- *	(string)event: persid or sym as string of event to attach on failure
- *
- * returns:
- *	1 on failure
- *	0 on success
- */
+
+// Function: z_checkin
+// -------------------
+// checking in previously checked out group leader
+//
+// gl: group leader
+// delay: delay between iterations if object is busy
+// timeout: max iterations before terminating attempts
+//
+// optional args:
+//	(string)event: persid or sym as string of event to attach on failure
+//
+// returns:
+//	1 on failure
+//	0 on success
 int z_checkin(object gl, int delay, int timeout, ...) {
 	int err_stat, retry_count, msg_i, i;
 	string msg_string;
@@ -73,23 +72,22 @@ int z_checkin(object gl, int delay, int timeout, ...) {
 	return 0;
 }
 
-/*
- * Function: z_checkout
- * --------------------
- * checking out object into group leader
- *
- * gl: group leader
- * zobj: object to check out
- * delay: delay between iterations if object is busy
- * timeout: max iterations before terminating attempts
- *
- * optional args:
- *	(string)event: persid or sym as string of event to attach on failure
- *
- * returns:
- *	1 on failure
- *	0 on success
- */
+
+// Function: z_checkout
+// --------------------
+// checking out object into group leader
+//
+// gl: group leader
+// zobj: object to check out
+// delay: delay between iterations if object is busy
+// timeout: max iterations before terminating attempts
+//
+// optional args:
+//	(string)event: persid or sym as string of event to attach on failure
+//
+// returns:
+//	1 on failure
+//	0 on success
 int z_checkout(object gl, object zobj, int delay, int timeout, ...) {
 	int err_stat, retry_count, msg_i, i;
 	string msg_string;
@@ -127,51 +125,46 @@ int z_checkout(object gl, object zobj, int delay, int timeout, ...) {
 	return 0;
 }
 
-/*
- * Function: z_format_to_json
- * --------------------------
- * formating key and value pair to json styled format
- *
- * key: string passed as key
- * value: string passed as value, also will be formated to line
- * 		  with `z_format_to_line`
- *
- * returns: formatted in json style key/value pair
- */
+
+// Function: z_format_to_json
+// --------------------------
+// formating key and value pair to json styled format
+//
+// key: string passed as key
+// value: string passed as value, also will be formated to line
+// 		  with `z_format_to_line`
+//
+// returns: formatted in json style key/value pair
 string z_format_to_json(string key, string val) {
 	return format("\t\"%s\" : \"%s\"", key, z_format_to_line(val));
 }
 
-/*
- * Function: z_format_to_line
- * --------------------------
- * replacing linebreaks to prevent js crashing
- *
- * inputline: string to convert
- *
- * returns: formatted string that safe to pass to js interpreter
- */
+
+// Function: z_format_to_line
+// --------------------------
+// replacing linebreaks to prevent js crashing
+//
+// inputline: string to convert
+//
+// returns: formatted string that safe to pass to js interpreter
 string z_format_to_line(string inputline) {
 	logf(TRACE, "<< %s", inputline);
 	string templine;
 	templine = inputline;
-	templine = gsub(templine, "[\\]", "\\\\");
 	templine = gsub(templine, "[\r]", "\\\r");
 	templine = gsub(templine, "[\n]", "\\\n");
-	templine = gsub(templine, "[\"]", "\\\"");
 	logf(TRACE, ">> %s", templine);
 	return templine;
 }
 
-/*
- * Function: z_get_factory
- * --------------------------
- * getting factory (producer_id) form persid (persistent_id)
- *
- * persid: persistent_id
- *
- * returns: factory (producer_id)
- */
+
+// Function: z_get_factory
+// --------------------------
+// getting factory (producer_id) form persid (persistent_id)
+//
+// persid: persistent_id
+//
+// returns: factory (producer_id)
 string z_get_factory(string persid) {
 	if (sindex(persid, ":")) {
 		return substr(persid, 0, (sindex(persid, ":")));
@@ -179,19 +172,18 @@ string z_get_factory(string persid) {
 	return (string)NULL;
 }
 
-/*
- * Function: z_get_gl
- * --------------------------
- * getting group leader
- *
- * optional args:
- *	(int)this_gl {1}: get current session's group leader,
- *			   will work if you're already have something checked out,
- *			   like you in func on method caused by POST_VAL/PRE_VAL trigger
- *			   or attached event macro
- *
- * returns: factory (producer_id)
- */
+
+// Function: z_get_gl
+// --------------------------
+// getting group leader
+//
+// optional args:
+//	(int)this_gl {1}: get current session's group leader,
+//			   will work if you're already have something checked out,
+//			   like you in func on method caused by POST_VAL/PRE_VAL trigger
+//			   or attached event macro
+//
+// returns: factory (producer_id)
 object z_get_gl(...) {
 	int msg_i;
 
@@ -213,17 +205,16 @@ object z_get_gl(...) {
 	return (object)NULL;
 }
 
-/*
- * Function: z_get_latest_object
- * --------------------------
- * fetching latest in list row and returning it as an object
- *
- * factory: factory to search on
- * wc: whereclause, searching criteria
- * domset: factory domset, run `bop_sinfo -l <factory>` to get domsets and their details
- *
- * returns: object
- */
+
+// Function: z_get_latest_object
+// --------------------------
+// fetching latest in list row and returning it as an object
+//
+// factory: factory to search on
+// wc: whereclause, searching criteria
+// domset: factory domset, run `bop_sinfo -l <factory>` to get domsets and their details
+//
+// returns: object
 object z_get_latest_object(string factory, string wc, string domset) {
 	int zcount, msg_i;
 	object zobj, zfound;
@@ -248,61 +239,58 @@ object z_get_latest_object(string factory, string wc, string domset) {
 	return (object)NULL;
 }
 
-/*
- * Function: z_binpow
- * ------------------
- * computes power of int
- *
- * a: int to power
- * n: power
- *
- * returns: powered int
- */
+
+// Function: z_binpow
+// ------------------
+// computes power of int
+//
+// a: int to power
+// n: power
+//
+// returns: powered int
 int z_binpow(int a, int n) {
 	if (n == 0) {
 		return 1;
 	}
 	if (n % 2 == 1) {
-		return z_binpow(a, n - 1) * a;
+		return z_binpow(a, n - 1)// a;
 	} else {
 		int b;
 		b = z_binpow(a, n / 2);
-		return b * b;
+		return b// b;
 	}
 }
 
-/*
- * Function: z_modulo
- * --------------------------
- * returning digit's modulo
- *
- * num: digit
- *
- * returns: digit's modulo
- */
+
+// Function: z_modulo
+// --------------------------
+// returning digit's modulo
+//
+// num: digit
+//
+// returns: digit's modulo
 int z_modulo(int num) {
 	if (num < 0) {
-		num *= -1;
+		num//= -1;
 	}
 	return num;
 }
 
-/*
- * Function: z_new_evt
- * --------------------------
- * attaches new attached event by event's name or persid to any object with any delay
- *
- * evtkey: event name or persid
- *
- * optional args:
- *	(string)obj_id: object to attach event to
- *	(int)timeout: delay until event trigger
- *	(string)group_name: event group name to separate events functionality
- *	(int)delayed_start {0/1}: pass 1 to create delayed event which can start manually
- *							  or depending on some object related logic
- *
- * returns: attached event's persid
- */
+
+// Function: z_new_evt
+// --------------------------
+// attaches new attached event by event's name or persid to any object with any delay
+//
+// evtkey: event name or persid
+//
+// optional args:
+//	(string)obj_id: object to attach event to
+//	(int)timeout: delay until event trigger
+//	(string)group_name: event group name to separate events functionality
+//	(int)delayed_start {0/1}: pass 1 to create delayed event which can start manually
+//							  or depending on some object related logic
+//
+// returns: attached event's persid
 string z_new_evt(string evtkey, ...) {
 	string obj_id, group_name;
 	duration timeout;
@@ -375,15 +363,14 @@ string z_new_evt(string evtkey, ...) {
 	}
 }
 
-/*
- * Function: z_obj_by_persid
- * --------------------------
- * getting object by it's persid
- *
- * persid: persistent_id
- *
- * returns: object
- */
+
+// Function: z_obj_by_persid
+// --------------------------
+// getting object by it's persid
+//
+// persid: persistent_id
+//
+// returns: object
 object z_obj_by_persid(string persid) {
 	object zobj;
 	int msg_i;
@@ -397,15 +384,14 @@ object z_obj_by_persid(string persid) {
 	return (object)msg[0];
 }
 
-/*
- * Function: z_obj_info
- * --------------------------
- * getting common object attributes as string
- *
- * persid: persistent_id
- *
- * returns: object
- */
+
+// Function: z_obj_info
+// --------------------------
+// getting common object attributes as string
+//
+// persid: persistent_id
+//
+// returns: object
 string z_obj_info(object zobj) {
 	string factory, rel_attr, common_name, result;
 	int msg_i;
@@ -426,34 +412,33 @@ string z_obj_info(object zobj) {
 	return result;
 }
 
-/*
- * Function: z_upd_val
- * --------------------------
- * updates attributes with provided data for all matching objects
- *
- * factory: factory to search on
- * wc: whereclause, searching criteria
- * delay: delay between iterations if object is busy
- * timeout: max iterations before terminating attempts
- *
- * optional args:
- *	-- please notice that at least 1 pair of key/value should be provided --
- *	[
- *		(string){
-			attribute_name: attribute name to update
-			flag: flag to perform activity on fail, currentnly
-				only `PLAN_B` flag available, which attaches an
-				event on fail. Pass event name or persid as value
-				this flag.
-			update_modifier: set_val method's argument, known modifiers:
-				SURE_SET - forcing the update,
-				SUPPRESS_TRIGGERS - don't trigger attribute related triggers
-		}
- *		value: attribute_name/flag/update_modifier value
- *	]
- *
- * returns: object
- */
+
+// Function: z_upd_val
+// --------------------------
+// updates attributes with provided data for all matching objects
+//
+// factory: factory to search on
+// wc: whereclause, searching criteria
+// delay: delay between iterations if object is busy
+// timeout: max iterations before terminating attempts
+//
+// optional args:
+//	-- please notice that at least 1 pair of key/value should be provided --
+//	[
+//		(string){
+//			attribute_name: attribute name to update
+//			flag: flag to perform activity on fail, currentnly
+//				only `PLAN_B` flag available, which attaches an
+//				event on fail. Pass event name or persid as value
+//				this flag.
+//			update_modifier: set_val method's argument, known modifiers:
+//				SURE_SET - forcing the update,
+//				SUPPRESS_TRIGGERS - don't trigger attribute related triggers
+//		}
+//		value: attribute_name/flag/update_modifier value
+//	]
+//
+// returns: object
 int z_upd_val(string factory, string wc, int delay, int timeout, ...) {
 	set_ilimit(ILIMIT);
 	object zfound, gl, zobj;
