@@ -253,11 +253,11 @@ int z_binpow(int a, int n) {
 		return 1;
 	}
 	if (n % 2 == 1) {
-		return z_binpow(a, n - 1)// a;
+		return z_binpow(a, n - 1);
 	} else {
 		int b;
 		b = z_binpow(a, n / 2);
-		return b// b;
+		return b;
 	}
 }
 
@@ -271,7 +271,7 @@ int z_binpow(int a, int n) {
 // returns: digit's modulo
 int z_modulo(int num) {
 	if (num < 0) {
-		num//= -1;
+		num = -1;
 	}
 	return num;
 }
@@ -509,4 +509,77 @@ int z_upd_val(string factory, string wc, int delay, int timeout, ...) {
 	logf(SIGNIFICANT, "%s > updated: %s", factory, wc);
 
 	return 0;
+}
+
+string z_get_attr_type(string factory, string attr) {
+	int msg_i;
+
+	send_wait(0, top_object(), "call_attr", factory, "dob_attr_type_info", attr);
+	if (msg_error()) {
+		L_ERROR
+		return;
+	}
+	if (msg[1] == "VALUE") {
+		switch ((int)msg[2]) {
+			case 0:
+				return "INTEGER";
+			case 1:
+				return "DOUBLE";
+			case 2:
+				return "STRING";
+			case 6:
+				return "LOCAL_TIME";
+			case 7:
+				return "DATE";
+			case 8:
+				return "DURATION";
+			case 9:
+				return "UUID";
+			default:
+				return "UNKNOWN";
+		}
+	} else if (msg[1] == "SREL") {
+		return z_get_attr_type(msg[2], msg[3]);
+	} else {
+		return format("%s to %s", msg[1], msg[2]);
+	}
+}
+
+// z_nextmonth
+//	returns first day of next month
+//	@args:
+//		0: date
+//		1: time ("12:34:56" duration format) (optional)
+date z_nextmonth(date dt, ...) {
+	int mm, dd, yyyy, splen;
+	string splitter[3], str, tm;
+	
+	tm = "00:00:00";
+	if (argc == 2) {
+		tm = argv[1];
+	}
+	splen = split(splitter, substr((string)dt, 0, 12), "/");
+
+	if (splen == 3) {
+		mm = (int)splitter[0];
+		dd = (int)splitter[1];
+		yyyy = (int)splitter[2];
+		str = format("%s/%s/%s %s", (mm + 1), "01", yyyy, tm);
+		dt = (date)(string)str;
+	} else {
+		dt = (date)NULL;
+	}
+	return dt;
+}
+
+// z_get_who
+//	returns current user
+//	uuid who;
+//	who = z_get_who();
+uuid z_get_who() {
+	send_wait(0,top_object(), "call_attr", "cnt", "current_user_id");
+	if (msg_error()) {
+		return (uuid)NULL;
+	}
+	return (uuid)msg[0];
 }
